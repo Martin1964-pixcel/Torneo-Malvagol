@@ -1,5 +1,4 @@
 'use server';
-
 import { revalidatePath } from 'next/cache';
 import { supabase } from '../../lib/supabase';
 export async function createTournament(formData: FormData) {
@@ -37,24 +36,131 @@ export async function createPlayer(formData: FormData) {
 
 export async function createMatch(formData: FormData) {
   if (!supabase) return;
+
+  const homeTeamId = String(formData.get('home_team_id') || '');
+  const awayTeamId = String(formData.get('away_team_id') || '');
+
+  const { data: homeTeamData } = await supabase
+    .from('teams')
+    .select('name')
+    .eq('id', homeTeamId)
+    .single();
+
+  const { data: awayTeamData } = await supabase
+    .from('teams')
+    .select('name')
+    .eq('id', awayTeamId)
+    .single();
+
   await supabase.from('matches').insert({
     tournament_id: String(formData.get('tournament_id') || ''),
-    home_team_id: String(formData.get('home_team_id') || ''),
-    away_team_id: String(formData.get('away_team_id') || ''),
+
+    home_team_id: homeTeamId,
+    away_team_id: awayTeamId,
+
+    home_team: homeTeamData?.name || '',
+    away_team: awayTeamData?.name || '',
+
     match_date: String(formData.get('match_date') || ''),
     field: String(formData.get('field') || 'Cancha 1'),
+    round: Number(formData.get('round') || 1),
   });
+
   revalidatePath('/admin');
   revalidatePath('/');
 }
 
-export async function updateMatchScore(formData: FormData) {
+export async function updateTeam(formData: FormData) {
   if (!supabase) return;
-  await supabase.from('matches').update({
-    home_goals: Number(formData.get('home_goals') || 0),
-    away_goals: Number(formData.get('away_goals') || 0),
-    status: 'finalizado',
-  }).eq('id', String(formData.get('match_id') || ''));
+
+  await supabase
+    .from('teams')
+    .update({
+      name: String(formData.get('name') || ''),
+      coach: String(formData.get('coach') || ''),
+    })
+    .eq('id', String(formData.get('team_id') || ''));
+
   revalidatePath('/admin');
   revalidatePath('/');
+  revalidatePath('/tabla');
+}
+export async function createGoal(formData: FormData) {
+  if (!supabase) return;
+
+  const playerId = String(formData.get('player_id') || '');
+
+  const { data: playerData } = await supabase
+    .from('players')
+    .select('team_id')
+    .eq('id', playerId)
+    .single();
+
+  await supabase.from('goals').insert({
+    match_id: String(formData.get('match_id') || ''),
+    player_id: playerId,
+    team_id: playerData?.team_id || null,
+    minute: Number(formData.get('minute') || 0),
+  });
+
+  revalidatePath('/admin');
+  revalidatePath('/');
+  revalidatePath('/goleadores');
+}
+export async function updateMatchData(formData: FormData) {
+  if (!supabase) return;
+
+  await supabase
+    .from("matches")
+    .update({
+      home_score: Number(formData.get("home_score") || 0),
+      away_score: Number(formData.get("away_score") || 0),
+      field: String(formData.get("field") || ""),
+      round: Number(formData.get("round") || 1),
+      match_date: String(formData.get("match_date") || ""),
+    })
+    .eq("id", String(formData.get("match_id") || ""));
+
+  revalidatePath("/admin/partidos");
+  revalidatePath("/tabla");
+  revalidatePath("/");
+}
+export async function deleteMatch(formData: FormData) {
+  if (!supabase) return;
+
+  await supabase
+    .from("matches")
+    .delete()
+    .eq("id", String(formData.get("match_id") || ""));
+
+  revalidatePath("/admin/partidos");
+  revalidatePath("/admin");
+  revalidatePath("/tabla");
+  revalidatePath("/");
+}
+export async function updatePlayerData(formData: FormData) {
+  if (!supabase) return;
+
+  await supabase
+    .from("players")
+    .update({
+      full_name: String(formData.get("full_name") || ""),
+      number: Number(formData.get("number") || 0),
+      position: String(formData.get("position") || ""),
+    })
+    .eq("id", String(formData.get("player_id") || ""));
+
+  revalidatePath("/admin/jugadores");
+  revalidatePath("/goleadores");
+}
+export async function deletePlayer(formData: FormData) {
+  if (!supabase) return;
+
+  await supabase
+    .from("players")
+    .delete()
+    .eq("id", String(formData.get("player_id") || ""));
+
+  revalidatePath("/admin/jugadores");
+  revalidatePath("/goleadores");
 }
