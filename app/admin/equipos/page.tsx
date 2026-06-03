@@ -10,31 +10,50 @@ type Team = {
   tournament_id?: string;
 };
 
+type Tournament = {
+  id: string;
+  name: string;
+  category?: string;
+};
+
 export default function EquiposPage() {
   const [teams, setTeams] = useState<Team[]>([]);
-  const [editingTeam, setEditingTeam] =
-    useState<string | null>(null);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [activeTournament, setActiveTournament] = useState<string>("");
+  const [editingTeam, setEditingTeam] = useState<string | null>(null);
 
   useEffect(() => {
-    loadTeams();
+    loadTournaments();
   }, []);
 
-  async function loadTeams() {
+  async function loadTournaments() {
+    if (!supabase) return;
+
+    const { data } = await supabase
+      .from("tournaments")
+      .select("*")
+      .order("name");
+
+    if (data && data.length > 0) {
+      setTournaments(data);
+      setActiveTournament(data[0].id);
+      await loadTeams(data[0].id);
+    }
+  }
+
+  async function loadTeams(tournamentId: string) {
     if (!supabase) return;
 
     const { data } = await supabase
       .from("teams")
       .select("*")
+      .eq("tournament_id", tournamentId)
       .order("name");
 
-    if (data) {
-      setTeams(data);
-    }
+    setTeams(data || []);
   }
 
-  async function updateTeam(
-    e: React.FormEvent<HTMLFormElement>
-  ) {
+  async function updateTeam(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!supabase) return;
@@ -49,19 +68,15 @@ export default function EquiposPage() {
       .eq("id", String(formData.get("team_id") || ""));
 
     setEditingTeam(null);
-
-    await loadTeams();
+    await loadTeams(activeTournament);
   }
 
   async function deleteTeam(teamId: string) {
     if (!supabase) return;
 
-    await supabase
-      .from("teams")
-      .delete()
-      .eq("id", teamId);
+    await supabase.from("teams").delete().eq("id", teamId);
 
-    await loadTeams();
+    await loadTeams(activeTournament);
   }
 
   return (
@@ -74,30 +89,37 @@ export default function EquiposPage() {
           ← Volver al panel admin
         </Link>
 
-        <h1 className="mb-8 text-3xl font-black md:text-5xl">
+        <h1 className="mb-6 text-3xl font-black md:text-5xl">
           Administración de Equipos
         </h1>
 
+        <div className="mb-6 flex flex-wrap gap-3">
+          {tournaments.map((tournament) => (
+            <button
+              key={tournament.id}
+              onClick={() => {
+                setActiveTournament(tournament.id);
+                loadTeams(tournament.id);
+              }}
+              className={`rounded-xl px-4 py-2 font-bold ${
+                activeTournament === tournament.id
+                  ? "bg-emerald-600 text-white"
+                  : "bg-white"
+              }`}
+            >
+              {tournament.name}
+            </button>
+          ))}
+        </div>
+
         <div className="grid gap-4">
           {teams.map((team) => (
-            <div
-              key={team.id}
-              className="rounded-3xl bg-white p-5 shadow-sm"
-            >
-              <p className="text-2xl font-black">
-                {team.name || "Sin nombre"}
-              </p>
+            <div key={team.id} className="rounded-3xl bg-white p-5 shadow-sm">
+              <p className="text-2xl font-black">{team.name || "Sin nombre"}</p>
 
               {editingTeam === team.id && (
-                <form
-                  onSubmit={updateTeam}
-                  className="mt-4 grid gap-3"
-                >
-                  <input
-                    type="hidden"
-                    name="team_id"
-                    value={team.id}
-                  />
+                <form onSubmit={updateTeam} className="mt-4 grid gap-3">
+                  <input type="hidden" name="team_id" value={team.id} />
 
                   <input
                     type="text"
@@ -119,17 +141,11 @@ export default function EquiposPage() {
               <div className="mt-4 flex flex-wrap gap-3">
                 <button
                   onClick={() =>
-                    setEditingTeam(
-                      editingTeam === team.id
-                        ? null
-                        : team.id
-                    )
+                    setEditingTeam(editingTeam === team.id ? null : team.id)
                   }
                   className="rounded-xl bg-amber-500 px-4 py-2 font-bold text-white"
                 >
-                  {editingTeam === team.id
-                    ? "Cancelar"
-                    : "Editar"}
+                  {editingTeam === team.id ? "Cancelar" : "Editar"}
                 </button>
 
                 <button

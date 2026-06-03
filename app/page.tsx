@@ -55,7 +55,7 @@ type Match = {
 };
 
 const categoryNames = [
-  "Novatos Empresarial",
+  "Libre Intermedia",
   "Veteranos 30 y Mayores",
   "Novatos Libre",
 ];
@@ -95,11 +95,24 @@ const [goals, setGoals] = useState<Goal[]>([]);
     async function loadData() {
       if (!supabase) return;
 
-      const { data: tournamentsData } = await supabase
-        .from("tournaments")
-        .select("*");
+      const { data: tournamentsData, error: tournamentsError } =
+  await supabase
+    .from("tournaments")
+    .select("*");
 
-      const { data: teamsData } = await supabase.from("teams").select("*");
+console.log("TOURNAMENTS DATA", tournamentsData);
+console.log("TOURNAMENTS ERROR", tournamentsError);
+if (tournamentsError) {
+  console.error("ERROR TORNEOS:", tournamentsError);
+}
+
+     const { data: teamsData, error: teamsError } =
+  await supabase
+    .from("teams")
+    .select("*");
+
+console.log("TEAMS DATA", teamsData);
+console.log("TEAMS ERROR", teamsError);
 
       const { data: playersData } = await supabase
         .from("players")
@@ -135,6 +148,11 @@ setGoals(goalsData || []);
   const filteredTeams = activeTournament
     ? teams.filter((team) => team.tournament_id === activeTournament.id)
     : [];
+    console.log("TOURNAMENTS", tournaments);
+console.log("ACTIVE CATEGORY", activeCategory);
+console.log("ACTIVE TOURNAMENT", activeTournament);
+console.log("TEAMS", teams.length);
+console.log("FILTERED", filteredTeams.length);
 
   // Evitar duplicados
   const uniqueTeams = filteredTeams.filter(
