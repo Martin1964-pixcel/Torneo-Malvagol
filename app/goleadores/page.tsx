@@ -19,6 +19,7 @@ type Team = {
   id: string;
   name?: string;
   nombre?: string;
+  tournament_id?: string;
 };
 
 type Goal = {
@@ -73,10 +74,17 @@ const [activeTournament, setActiveTournament] =
   const filteredPlayers =
   activeTournament === "todos"
     ? players
-    : players.filter(
-        (player: any) =>
-          player.tournament_id === activeTournament
-      );
+    : players.filter((player) => {
+        const team = teams.find(
+          (team) => team.id === player.team_id
+        );
+
+        return (
+          team &&
+          (team as any).tournament_id ===
+            activeTournament
+        );
+      });
 
 const goleadores = filteredPlayers
   .map((player) => ({
@@ -85,7 +93,16 @@ const goleadores = filteredPlayers
       (goal) => goal.player_id === player.id
     ).length,
   }))
-  .sort((a, b) => b.goles - a.goles);
+  .sort((a, b) => {
+    if (b.goles !== a.goles)
+      return b.goles - a.goles;
+
+    return (
+      (a.full_name || "").localeCompare(
+        b.full_name || ""
+      )
+    );
+  });
 
   return (
     <main className="min-h-screen bg-slate-100 p-4 md:p-6">

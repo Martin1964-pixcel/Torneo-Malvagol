@@ -20,14 +20,12 @@ type Player = {
 type Props = {
   matches: Match[];
   players: Player[];
-  createGoal: (formData: FormData) => void;
   updateMatchScore: (formData: FormData) => void;
 };
 
 export default function ScoreSection({
   matches,
   players,
-  createGoal,
   updateMatchScore,
 }: Props) {
   return (
@@ -46,11 +44,13 @@ export default function ScoreSection({
 
                 <div className="md:col-span-2">
                   <p className="font-bold">
-                    {match.home_team || "Local"} vs {match.away_team || "Visitante"}
+                    {match.home_team || "Local"} vs{" "}
+                    {match.away_team || "Visitante"}
                   </p>
 
                   <p className="text-sm text-slate-500">
-                    {new Date(match.match_date).toLocaleString("es-MX")} · {match.field}
+                    {new Date(match.match_date).toLocaleString("es-MX")} ·{" "}
+                    {match.field}
                   </p>
                 </div>
 
@@ -68,14 +68,17 @@ export default function ScoreSection({
                   className="w-full rounded-xl border border-slate-200 px-3 py-2"
                 />
 
-                <button className="rounded-xl bg-slate-950 px-4 py-2 font-bold text-white hover:bg-slate-800">
+                <button
+                  type="submit"
+                  className="rounded-xl bg-slate-950 px-4 py-2 font-bold text-white hover:bg-slate-800"
+                >
                   Finalizar
                 </button>
               </form>
 
-              <form action={createGoal} className="md:col-span-5">
+              <div className="md:col-span-5">
                 <GoalForm players={players} match={match} />
-              </form>
+              </div>
             </div>
           ))}
         </div>
