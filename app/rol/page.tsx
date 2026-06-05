@@ -82,9 +82,9 @@ export default function RolPage() {
     .map(Number)
     .sort((a, b) => a - b);
 
-  function getTeamName(teamId: string) {
-    return teams.find((team) => team.id === teamId)?.name || "Equipo";
-  }
+  function getTeam(teamId: string) {
+  return teams.find((team) => team.id === teamId);
+}
 function getTeamLogo(teamId: string) {
   return (
     teams.find((team) => team.id === teamId)?.logo_url || ""
@@ -198,19 +198,22 @@ function getTeamLogo(teamId: string) {
                     className="rounded-2xl border border-slate-200 bg-white p-5"
                   >
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                      <div className="flex flex-col gap-3">
+  <div className="flex flex-col gap-3">
   <div className="flex items-center gap-3">
     {getTeamLogo(match.home_team_id) && (
       <img
         src={getTeamLogo(match.home_team_id)}
-        alt={getTeamName(match.home_team_id)}
+        alt={getTeam(match.home_team_id)?.name || "Equipo"}
         className="h-12 w-12 object-contain"
       />
     )}
 
-    <p className="text-xl font-black">
-      {getTeamName(match.home_team_id)}
-    </p>
+    <Link
+      href={`/equipos/${match.home_team_id}`}
+      className="text-xl font-black hover:text-emerald-600"
+    >
+      {getTeam(match.home_team_id)?.name || "Equipo"}
+    </Link>
   </div>
 
   <p className="ml-16 text-sm font-bold text-emerald-700">
@@ -221,14 +224,17 @@ function getTeamLogo(teamId: string) {
     {getTeamLogo(match.away_team_id) && (
       <img
         src={getTeamLogo(match.away_team_id)}
-        alt={getTeamName(match.away_team_id)}
+        alt={getTeam(match.away_team_id)?.name || "Equipo"}
         className="h-12 w-12 object-contain"
       />
     )}
 
-    <p className="text-xl font-black">
-      {getTeamName(match.away_team_id)}
-    </p>
+    <Link
+      href={`/equipos/${match.away_team_id}`}
+      className="text-xl font-black hover:text-emerald-600"
+    >
+      {getTeam(match.away_team_id)?.name || "Equipo"}
+    </Link>
   </div>
 </div>
 

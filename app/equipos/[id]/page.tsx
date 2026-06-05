@@ -305,6 +305,7 @@ export default function EquipoPage() {
 }
 
 function Stat({
+  
   title,
   value,
 }: {
