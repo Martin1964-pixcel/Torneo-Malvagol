@@ -18,8 +18,8 @@ type Team = {
   name?: string;
   nombre?: string;
   tournament_id?: string;
+  logo_url?: string | null;
 };
-
 
 type Player = {
   id: string;
@@ -178,6 +178,12 @@ const teamNameById = Object.fromEntries(
   teams.map((team) => [
     team.id,
     team.name || team.nombre || "Sin nombre",
+  ])
+);
+const teamLogoById = Object.fromEntries(
+  teams.map((team) => [
+    team.id,
+    team.logo_url || "",
   ])
 );
 const upcomingMatches = filteredMatches.filter(
@@ -395,7 +401,29 @@ const pj = teamMatches.filter(
                 {standings.map((team, index) => (
                   <tr key={team.nombre} className="border-b">
   <td className="py-3 font-bold">{index + 1}</td>
-  <td className="font-bold">{team.nombre}</td>
+  <td>
+  <div className="flex items-center gap-2">
+    {teams.find(
+      (t) =>
+        (t.name || t.nombre) === team.nombre
+    )?.logo_url && (
+      <img
+        src={
+          teams.find(
+            (t) =>
+              (t.name || t.nombre) === team.nombre
+          )?.logo_url || ""
+        }
+        alt={team.nombre}
+        className="h-8 w-8 object-contain"
+      />
+    )}
+
+    <span className="font-bold">
+      {team.nombre}
+    </span>
+  </div>
+</td>
 <td>{team.pj}</td>
 <td>{team.pg}</td>
 <td>{team.pe}</td>
@@ -417,11 +445,35 @@ const pj = teamMatches.filter(
 <div className="space-y-3">
   {upcomingMatches.map((match) => (
     <div key={match.id} className="rounded-2xl border p-4">
-      <p className="font-black">
-        {teamNameById[match.home_team_id || ""] || "Local"} vs{" "}
-        {teamNameById[match.away_team_id || ""] || "Visitante"}
-      </p>
+      <div className="flex items-center gap-3">
+  {teamLogoById[match.home_team_id || ""] && (
+    <img
+      src={teamLogoById[match.home_team_id || ""]}
+      alt=""
+      className="h-10 w-10 object-contain"
+    />
+  )}
 
+  <span className="font-black">
+    {teamNameById[match.home_team_id || ""] || "Local"}
+  </span>
+
+  <span className="text-emerald-700 font-bold">
+    VS
+  </span>
+
+  {teamLogoById[match.away_team_id || ""] && (
+    <img
+      src={teamLogoById[match.away_team_id || ""]}
+      alt=""
+      className="h-10 w-10 object-contain"
+    />
+  )}
+
+  <span className="font-black">
+    {teamNameById[match.away_team_id || ""] || "Visitante"}
+  </span>
+</div>
       <p className="text-sm text-slate-500">
         {match.field || "Sin cancha"} ·{" "}
         {match.match_date

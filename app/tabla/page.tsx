@@ -167,7 +167,11 @@ export default function TablaPage() {
   function getTeamName(teamId: string) {
     return teams.find((team) => team.id === teamId)?.name || "Equipo";
   }
-
+function getTeamLogo(teamId: string) {
+  return (
+    teams.find((team) => team.id === teamId)?.logo_url || ""
+  );
+}
   return (
     <main className="min-h-screen bg-slate-100 p-4 md:p-10">
       <div className="mx-auto max-w-5xl rounded-3xl bg-white p-4 shadow-sm md:p-10">
@@ -288,11 +292,35 @@ export default function TablaPage() {
                     key={match.id}
                     className="rounded-xl border border-slate-200 px-4 py-3"
                   >
-                    <p className="font-black">
-                      {getTeamName(match.home_team_id)} {match.home_score} -{" "}
-                      {match.away_score} {getTeamName(match.away_team_id)}
-                    </p>
+                    <div className="flex items-center gap-3">
+  {getTeamLogo(match.home_team_id) && (
+    <img
+      src={getTeamLogo(match.home_team_id)}
+      alt={getTeamName(match.home_team_id)}
+      className="h-10 w-10 object-contain"
+    />
+  )}
 
+  <span className="font-black">
+    {getTeamName(match.home_team_id)}
+  </span>
+
+  <span className="font-black text-emerald-700">
+    {match.home_score} - {match.away_score}
+  </span>
+
+  <span className="font-black">
+    {getTeamName(match.away_team_id)}
+  </span>
+
+  {getTeamLogo(match.away_team_id) && (
+    <img
+      src={getTeamLogo(match.away_team_id)}
+      alt={getTeamName(match.away_team_id)}
+      className="h-10 w-10 object-contain"
+    />
+  )}
+</div>
                     <span className="block text-sm text-slate-500">
                       Jornada {match.round || 1}
                     </span>
@@ -316,10 +344,35 @@ export default function TablaPage() {
                     key={match.id}
                     className="rounded-xl border border-slate-200 px-4 py-3"
                   >
-                    <p className="font-black">
-                      {getTeamName(match.home_team_id)} vs{" "}
-                      {getTeamName(match.away_team_id)}
-                    </p>
+                   <div className="flex items-center gap-3">
+  {getTeamLogo(match.home_team_id) && (
+    <img
+      src={getTeamLogo(match.home_team_id)}
+      alt={getTeamName(match.home_team_id)}
+      className="h-10 w-10 object-contain"
+    />
+  )}
+
+  <span className="font-black">
+    {getTeamName(match.home_team_id)}
+  </span>
+
+  <span className="font-bold text-emerald-700">
+    VS
+  </span>
+
+  {getTeamLogo(match.away_team_id) && (
+    <img
+      src={getTeamLogo(match.away_team_id)}
+      alt={getTeamName(match.away_team_id)}
+      className="h-10 w-10 object-contain"
+    />
+  )}
+
+  <span className="font-black">
+    {getTeamName(match.away_team_id)}
+  </span>
+</div>
 
                     <p className="text-sm text-slate-500">
                       Jornada {match.round || 1}
