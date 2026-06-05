@@ -9,6 +9,7 @@ type Team = {
   id: string;
   name?: string;
   tournament_id?: string;
+  logo_url?: string | null;
 };
 
 type Match = {
@@ -84,7 +85,11 @@ export default function RolPage() {
   function getTeamName(teamId: string) {
     return teams.find((team) => team.id === teamId)?.name || "Equipo";
   }
-
+function getTeamLogo(teamId: string) {
+  return (
+    teams.find((team) => team.id === teamId)?.logo_url || ""
+  );
+}
   function formatDate(date?: string) {
     if (!date) return "Fecha por definir";
 
@@ -193,19 +198,39 @@ export default function RolPage() {
                     className="rounded-2xl border border-slate-200 bg-white p-5"
                   >
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <p className="text-xl font-black">
-                          {getTeamName(match.home_team_id)}
-                        </p>
+                      <div className="flex flex-col gap-3">
+  <div className="flex items-center gap-3">
+    {getTeamLogo(match.home_team_id) && (
+      <img
+        src={getTeamLogo(match.home_team_id)}
+        alt={getTeamName(match.home_team_id)}
+        className="h-12 w-12 object-contain"
+      />
+    )}
 
-                        <p className="my-1 text-sm font-bold text-emerald-700">
-                          VS
-                        </p>
+    <p className="text-xl font-black">
+      {getTeamName(match.home_team_id)}
+    </p>
+  </div>
 
-                        <p className="text-xl font-black">
-                          {getTeamName(match.away_team_id)}
-                        </p>
-                      </div>
+  <p className="ml-16 text-sm font-bold text-emerald-700">
+    VS
+  </p>
+
+  <div className="flex items-center gap-3">
+    {getTeamLogo(match.away_team_id) && (
+      <img
+        src={getTeamLogo(match.away_team_id)}
+        alt={getTeamName(match.away_team_id)}
+        className="h-12 w-12 object-contain"
+      />
+    )}
+
+    <p className="text-xl font-black">
+      {getTeamName(match.away_team_id)}
+    </p>
+  </div>
+</div>
 
                       <div className="rounded-2xl bg-slate-100 p-4 text-sm md:text-right">
                         <p className="font-black text-slate-900">
