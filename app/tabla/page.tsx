@@ -8,6 +8,7 @@ type Team = {
   id: string;
   name?: string;
   tournament_id?: string;
+  logo_url?: string | null;
 };
 
 type Match = {
@@ -240,7 +241,21 @@ export default function TablaPage() {
                 {standings.map((team, index) => (
                   <tr key={team.id} className="border-b">
                     <td className="px-4 py-3 font-bold">{index + 1}</td>
-                    <td className="font-black">{team.name}</td>
+                   <td>
+  <div className="flex items-center gap-2">
+    {teams.find((t) => t.id === team.id)?.logo_url && (
+      <img
+        src={teams.find((t) => t.id === team.id)?.logo_url || ""}
+        alt={team.name}
+        className="h-8 w-8 rounded-full object-cover"
+      />
+    )}
+
+    <span className="font-black">
+      {team.name}
+    </span>
+  </div>
+</td>
                     <td>{team.pj}</td>
                     <td>{team.pg}</td>
                     <td>{team.pe}</td>

@@ -1,5 +1,6 @@
 "use client";
 
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
@@ -8,6 +9,7 @@ type Team = {
   id: string;
   name?: string;
   tournament_id?: string;
+  logo_url?: string | null;
 };
 
 type Tournament = {
@@ -21,6 +23,7 @@ export default function EquiposPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [activeTournament, setActiveTournament] = useState<string>("");
   const [editingTeam, setEditingTeam] = useState<string | null>(null);
+  const [uploadingTeam, setUploadingTeam] = useState<string | null>(null);
 
   useEffect(() => {
     loadTournaments();
@@ -71,6 +74,51 @@ export default function EquiposPage() {
     await loadTeams(activeTournament);
   }
 
+  async function uploadLogo(teamId: string, file: File | null) {
+    if (!supabase || !file) return;
+
+    setUploadingTeam(teamId);
+
+    const fileExtension = file.name.split(".").pop();
+    const filePath = `${teamId}-${Date.now()}.${fileExtension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("team-logos")
+      .upload(filePath, file, {
+        upsert: true,
+      });
+
+    if (uploadError) {
+      alert("No se pudo subir el logo.");
+      console.error(uploadError);
+      setUploadingTeam(null);
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from("team-logos")
+      .getPublicUrl(filePath);
+
+    const logoUrl = data.publicUrl;
+
+    const { error: updateError } = await supabase
+      .from("teams")
+      .update({
+        logo_url: logoUrl,
+      })
+      .eq("id", teamId);
+
+    if (updateError) {
+      alert("El logo subió, pero no se pudo guardar en el equipo.");
+      console.error(updateError);
+      setUploadingTeam(null);
+      return;
+    }
+
+    await loadTeams(activeTournament);
+    setUploadingTeam(null);
+  }
+
   async function deleteTeam(teamId: string) {
     if (!supabase) return;
 
@@ -115,7 +163,47 @@ export default function EquiposPage() {
         <div className="grid gap-4">
           {teams.map((team) => (
             <div key={team.id} className="rounded-3xl bg-white p-5 shadow-sm">
-              <p className="text-2xl font-black">{team.name || "Sin nombre"}</p>
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border bg-slate-100 p-2">
+                    {team.logo_url ? (
+                      <img
+  src={team.logo_url}
+  alt={team.name || "Logo del equipo"}
+  className="max-h-full max-w-full object-contain"
+/>
+                    ) : (
+                      <span className="text-xs font-bold text-slate-400">
+                        Sin logo
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <p className="text-2xl font-black">
+                      {team.name || "Sin nombre"}
+                    </p>
+
+                    {uploadingTeam === team.id && (
+                      <p className="mt-1 text-sm font-bold text-emerald-700">
+                        Subiendo logo...
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <label className="cursor-pointer rounded-xl bg-sky-600 px-4 py-2 text-center font-bold text-white">
+                  Subir logo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) =>
+                      uploadLogo(team.id, e.target.files?.[0] || null)
+                    }
+                  />
+                </label>
+              </div>
 
               {editingTeam === team.id && (
                 <form onSubmit={updateTeam} className="mt-4 grid gap-3">

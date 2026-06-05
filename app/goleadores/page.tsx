@@ -20,6 +20,7 @@ type Team = {
   name?: string;
   nombre?: string;
   tournament_id?: string;
+  logo_url?: string | null;
 };
 
 type Goal = {
@@ -70,7 +71,9 @@ const [activeTournament, setActiveTournament] =
       team.name || team.nombre || "Sin equipo",
     ])
   );
-
+const teamLogoById = Object.fromEntries(
+  teams.map((team) => [team.id, team.logo_url || ""])
+);
   const filteredPlayers =
   activeTournament === "todos"
     ? players
@@ -163,25 +166,41 @@ const goleadores = filteredPlayers
               key={player.id}
               className="flex flex-col gap-4 rounded-3xl bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between"
             >
-              <div>
-                <p className="text-2xl font-black">
-                  #{index + 1}{" "}
-                  {player.full_name ||
-                    player.name ||
-                    player.nombre}
-                </p>
+             <div className="flex items-center gap-4">
+  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border bg-slate-100 p-2">
+    {teamLogoById[player.team_id || ""] ? (
+      <img
+        src={teamLogoById[player.team_id || ""]}
+        alt={teamNameById[player.team_id || ""] || "Equipo"}
+        className="max-h-full max-w-full object-contain"
+      />
+    ) : (
+      <span className="text-xs font-bold text-slate-400">
+        Sin logo
+      </span>
+    )}
+  </div>
 
-                <p className="text-slate-500">
-                  {teamNameById[player.team_id || ""] ||
-                    "Sin equipo"}
-                </p>
+  <div>
+    <p className="text-2xl font-black">
+      #{index + 1}{" "}
+      {player.full_name ||
+        player.name ||
+        player.nombre}
+    </p>
 
-                <p className="text-sm text-slate-400">
-                  {player.position ||
-                    player.posicion ||
-                    "Sin posición"}
-                </p>
-              </div>
+    <p className="text-slate-500">
+      {teamNameById[player.team_id || ""] ||
+        "Sin equipo"}
+    </p>
+
+    <p className="text-sm text-slate-400">
+      {player.position ||
+        player.posicion ||
+        "Sin posición"}
+    </p>
+  </div>
+</div>
 
               <div className="rounded-2xl bg-emerald-600 px-6 py-4 text-center text-white">
                 <p className="text-4xl font-black">
