@@ -255,9 +255,12 @@ function getTeamLogo(teamId: string) {
       />
     )}
 
-    <span className="font-black">
-      {team.name}
-    </span>
+    <Link
+  href={`/equipos/${team.id}`}
+  className="font-black hover:text-emerald-600"
+>
+  {team.name}
+</Link>
   </div>
 </td>
                     <td>{team.pj}</td>

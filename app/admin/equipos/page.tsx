@@ -1,6 +1,5 @@
 "use client";
 
-
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
@@ -165,14 +164,14 @@ export default function EquiposPage() {
             <div key={team.id} className="rounded-3xl bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border bg-slate-100 p-2">
+                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border bg-slate-100">
                     {team.logo_url ? (
-                      <img
-  src={team.logo_url}
-  alt={team.name || "Logo del equipo"}
-  className="max-h-full max-w-full object-contain"
-/>
-                    ) : (
+  <img
+    src={team.logo_url}
+    alt={team.name || "Logo del equipo"}
+    className="h-full w-full object-cover"
+  />
+) : (
                       <span className="text-xs font-bold text-slate-400">
                         Sin logo
                       </span>
