@@ -46,43 +46,47 @@ export default function EquipoPage() {
   const [allTeams, setAllTeams] = useState<Team[]>([]);
 
   useEffect(() => {
-    loadData();
-  }, []);
+  if (!teamId) return;
 
-  async function loadData() {
-    if (!supabase) return;
+  loadData();
 
-    const { data: teamData } = await supabase
-      .from("teams")
-      .select("*")
-      .eq("id", teamId)
-      .single();
+}, [teamId]);
+ async function loadData() {
+  if (!supabase || !teamId) return;
 
-    const { data: playersData } = await supabase
-      .from("players")
-      .select("*")
-      .eq("team_id", teamId);
+  console.log("TEAM ID IN QUERY:", teamId);
 
-    const { data: goalsData } = await supabase
-      .from("goals")
-      .select("*")
-      .eq("team_id", teamId);
+  const { data: teamData } = await supabase
+    .from("teams")
+    .select("*")
+    .eq("id", teamId)
+    .single();
 
-    const { data: matchesData } = await supabase
-      .from("matches")
-      .select("*");
+  const { data: playersData } = await supabase
+    .from("players")
+    .select("*")
+    .eq("team_id", teamId);
 
-    const { data: teamsData } = await supabase
-      .from("teams")
-      .select("*");
+  console.log("PLAYERS DATA:", playersData);
 
-    setTeam(teamData);
-    setPlayers(playersData || []);
-    setGoals(goalsData || []);
-    setMatches(matchesData || []);
-    setAllTeams(teamsData || []);
-  }
+ const { data: goalsData } = await supabase
+  .from("goals")
+  .select("*")
+  .eq("team_id", teamId);
 
+  const { data: matchesData } = await supabase
+    .from("matches")
+    .select("*");
+
+  const { data: teamsData } = await supabase
+    .from("teams")
+    .select("*");
+  setTeam(teamData);
+  setPlayers(playersData || []);
+  setGoals(goalsData || []);
+  setMatches(matchesData || []);
+  setAllTeams(teamsData || []);
+}
   function getTeamName(id: string) {
     return (
       allTeams.find((team) => team.id === id)?.name ||
