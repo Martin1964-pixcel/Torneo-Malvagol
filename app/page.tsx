@@ -91,59 +91,88 @@ export default function HomePage() {
   const [matches, setMatches] = useState<Match[]>([]);
 const [goals, setGoals] = useState<Goal[]>([]);
 
-  useEffect(() => {
-    async function loadData() {
-      if (!supabase) return;
+useEffect(() => {
+  async function loadData() {
+    console.log("ENTRE A LOADDATA");
 
-      const { data: tournamentsData, error: tournamentsError } =
-  await supabase
-    .from("tournaments")
-    .select("*");
+    if (!supabase) return;
+console.log(
+  "VERCEL URL",
+  process.env.NEXT_PUBLIC_SUPABASE_URL
+);
 
-console.log("TOURNAMENTS DATA", tournamentsData);
-console.log("TOURNAMENTS ERROR", tournamentsError);
-if (tournamentsError) {
-  console.error("ERROR TORNEOS:", tournamentsError);
-}
+console.log(
+  "VERCEL KEY",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 30)
+);
+    const { data: tournamentsData, error: tournamentsError } =
+      await supabase
+        .from("tournaments")
+        .select("*");
 
-     const { data: teamsData, error: teamsError } =
-  await supabase
-    .from("teams")
-    .select("*");
+    console.log("TOURNAMENTS DATA API", tournamentsData);
+    console.log("TOURNAMENTS ERROR API", tournamentsError);
 
-console.log("TEAMS DATA", teamsData);
-console.log("TEAMS ERROR", teamsError);
+    const { data: teamsData, error: teamsError } =
+      await supabase
+        .from("teams")
+        .select("*");
 
-      const { data: playersData } = await supabase
+    console.log("TEAMS DATA", teamsData);
+    console.log("TEAMS ERROR", teamsError);
+
+    const { data: playersData, error: playersError } =
+      await supabase
         .from("players")
         .select("*");
 
-      const { data: matchesData } = await supabase
+    console.log("PLAYERS DATA", playersData);
+    console.log("PLAYERS ERROR", playersError);
+
+    const { data: matchesData, error: matchesError } =
+      await supabase
         .from("matches")
         .select("*");
-        const { data: goalsData } = await supabase
-  .from("goals")
-  .select("*");
 
-      setTournaments(tournamentsData || []);
-setTeams(teamsData || []);
-setPlayers(playersData || []);
-setMatches(matchesData || []);
-setGoals(goalsData || []);
-    }
+    console.log("MATCHES DATA", matchesData);
+    console.log("MATCHES ERROR", matchesError);
 
-    loadData();
-  }, []);
+    const { data: goalsData, error: goalsError } =
+      await supabase
+        .from("goals")
+        .select("*");
 
+    console.log("GOALS DATA", goalsData);
+    console.log("GOALS ERROR", goalsError);
+
+    setTournaments(tournamentsData || []);
+    setTeams(teamsData || []);
+    setPlayers(playersData || []);
+    setMatches(matchesData || []);
+    setGoals(goalsData || []);
+  }
+
+  console.log("VOY A EJECUTAR LOADDATA");
+  loadData();
+}, []);
   // Filtrar torneo activo por categoría
-  const activeTournament = tournaments.find((tournament) => {
-    const tournamentCategory =
-      (tournament.category || tournament.categoria || "")
-        .toLowerCase()
-        .trim();
+  console.log("TOURNAMENTS STATE", tournaments);
+ const activeTournament = tournaments.find((tournament) => {
+  console.log(
+    "COMPARE",
+    tournament.category,
+    activeCategory
+  );
 
-    return tournamentCategory.includes(activeCategory.toLowerCase().trim());
-  });
+  const tournamentCategory =
+    (tournament.category || tournament.categoria || "")
+      .toLowerCase()
+      .trim();
+
+  return tournamentCategory.includes(
+    activeCategory.toLowerCase().trim()
+  );
+});
    // Equipos filtrados por torneo
   const filteredTeams = activeTournament
     ? teams.filter((team) => team.tournament_id === activeTournament.id)
