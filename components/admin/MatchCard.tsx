@@ -15,9 +15,13 @@ interface MatchCardProps {
     round?: number;
     status?: string;
   };
+  onDeleted?: () => void;
 }
 
-export default function MatchCard({ match }: MatchCardProps) {
+export default function MatchCard({
+  match,
+  onDeleted,
+}: MatchCardProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   const isFinished =
@@ -141,15 +145,20 @@ export default function MatchCard({ match }: MatchCardProps) {
         </button>
 
         <form action={deleteMatch}>
-          <input type="hidden" name="match_id" value={match.id} />
+  <input
+    type="hidden"
+    name="match_id"
+    value={match.id}
+  />
 
-          <button
-            type="submit"
-            className="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white"
-          >
-            Eliminar
-          </button>
-        </form>
+  <button
+    type="submit"
+    className="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white"
+  >
+    Eliminar
+  </button>
+</form>
+     
       </div>
     </div>
   );

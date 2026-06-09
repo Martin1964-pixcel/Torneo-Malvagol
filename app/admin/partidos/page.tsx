@@ -31,6 +31,7 @@ interface Team {
 }
 
 export default function PartidosPage() {
+  
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [filteredTeams, setFilteredTeams] = useState<Team[]>([]);
@@ -44,7 +45,7 @@ export default function PartidosPage() {
   const [awayScore, setAwayScore] = useState(0);
   const [field, setField] = useState("");
   const [matchDate, setMatchDate] = useState("");
-
+const [editingMatchId, setEditingMatchId] = useState("");
   useEffect(() => {
     loadInitialData();
   }, []);
@@ -90,65 +91,105 @@ export default function PartidosPage() {
 
     setMatches(data || []);
   }
+function changeTournament(selectedTournamentId: string) {
+  setTournamentId(selectedTournamentId);
+  setHomeTeamId("");
+  setAwayTeamId("");
 
-  function changeTournament(selectedTournamentId: string) {
-    setTournamentId(selectedTournamentId);
-    setHomeTeamId("");
-    setAwayTeamId("");
+  const filtered = teams.filter(
+    (team) => team.tournament_id === selectedTournamentId
+  );
 
-    setFilteredTeams(
-      teams.filter((team) => team.tournament_id === selectedTournamentId)
-    );
+  console.log("TORNEO:", selectedTournamentId);
+  console.log("FILTRADOS:", filtered);
+
+  setFilteredTeams(filtered);
 
     loadMatches(selectedTournamentId);
   }
 
   async function saveMatch(e: React.FormEvent) {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!supabase) return;
+  if (!supabase) return;
 
-    if (!tournamentId || !homeTeamId || !awayTeamId || !matchDate) {
-      alert("Selecciona torneo, equipos y fecha del partido");
-      return;
-    }
-
-    if (homeTeamId === awayTeamId) {
-      alert("El equipo local y visitante no pueden ser el mismo");
-      return;
-    }
-
-    const { error } = await supabase.from("matches").insert([
-      {
-        tournament_id: tournamentId,
-        home_team_id: homeTeamId,
-        away_team_id: awayTeamId,
-        home_score: homeScore,
-        away_score: awayScore,
-        field,
-        match_date: matchDate,
-        status: "Finalizado",
-      },
-    ]);
-
-    if (error) {
-      alert("Error al guardar partido");
-      console.log(error);
-      return;
-    }
-
-    alert("Partido guardado");
-
-    await loadMatches(tournamentId);
-
-    setHomeTeamId("");
-    setAwayTeamId("");
-    setHomeScore(0);
-    setAwayScore(0);
-    setField("");
-    setMatchDate("");
+  if (!tournamentId || !homeTeamId || !awayTeamId || !matchDate) {
+    alert("Selecciona torneo, equipos y fecha del partido");
+    return;
   }
 
+  if (homeTeamId === awayTeamId) {
+    alert("El equipo local y visitante no pueden ser el mismo");
+    return;
+  }
+
+  const { error } = await supabase.from("matches").insert([
+    {
+      tournament_id: tournamentId,
+      home_team_id: homeTeamId,
+      away_team_id: awayTeamId,
+      home_score: homeScore,
+      away_score: awayScore,
+      field,
+      match_date: matchDate,
+      status: "Finalizado",
+    },
+  ]);
+
+  if (error) {
+  console.error(error);
+  alert("Error al guardar partido");
+  return;
+}
+
+await loadMatches(tournamentId);
+
+setHomeTeamId("");
+setAwayTeamId("");
+setHomeScore(0);
+setAwayScore(0);
+setField("");
+setMatchDate("");
+}
+async function updateMatch(e: React.FormEvent) {
+  e.preventDefault();
+
+  if (!supabase) return;
+
+  if (!editingMatchId) return;
+
+  const { error } = await supabase
+    .from("matches")
+    .update({
+      home_team_id: homeTeamId,
+      away_team_id: awayTeamId,
+      home_score: homeScore,
+      away_score: awayScore,
+      field,
+      match_date: matchDate,
+    })
+    .eq("id", editingMatchId);
+
+  if (error) {
+    console.error(error);
+    alert("Error al actualizar partido");
+    return;
+  }
+  await loadMatches(tournamentId);
+
+setEditingMatchId("");
+
+  alert("Partido actualizado");
+
+
+  setEditingMatchId("");
+  setHomeTeamId("");
+  setAwayTeamId("");
+  setHomeScore(0);
+  setAwayScore(0);
+  setField("");
+  setMatchDate("");
+}
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8">
       <div className="mx-auto max-w-5xl">
@@ -164,8 +205,11 @@ export default function PartidosPage() {
         </h1>
 
         <form
-          onSubmit={saveMatch}
-          className="grid max-w-2xl gap-4 rounded-3xl bg-white p-6 shadow"
+  onSubmit={
+    editingMatchId
+      ? updateMatch
+      : saveMatch
+  }
         >
           <select
             value={tournamentId}
@@ -243,37 +287,39 @@ export default function PartidosPage() {
           />
 
           <button
-            type="submit"
-            className="rounded-xl bg-emerald-600 p-3 font-bold text-white"
-          >
-            Guardar Partido
-          </button>
+  type="submit"
+  className="rounded-xl bg-emerald-600 p-3 font-bold text-white"
+>
+  {editingMatchId
+    ? "Actualizar Partido"
+    : "Guardar Partido"}
+</button>
         </form>
 
         <div className="mt-8 grid max-w-2xl gap-3">
-          <h2 className="text-2xl font-black">Partidos guardados</h2>
+  <h2 className="text-2xl font-black">Partidos guardados</h2>
 
-          {matches.length === 0 && (
-            <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
-              No hay partidos registrados en esta categoría.
-            </div>
-          )}
+  {matches.length === 0 && (
+    <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
+      No hay partidos registrados en esta categoría.
+    </div>
+  )}
 
-          {matches.map((match) => (
-            <MatchCard
-              key={match.id}
-              match={{
-                ...match,
-                home_team:
-                  teams.find((team) => team.id === match.home_team_id)?.name ||
-                  "Equipo Local",
-                away_team:
-                  teams.find((team) => team.id === match.away_team_id)?.name ||
-                  "Equipo Visitante",
-              }}
-            />
-          ))}
-        </div>
+  {matches.map((match) => (
+    <MatchCard
+      key={match.id}
+      match={{
+        ...match,
+        home_team:
+          teams.find((team) => team.id === match.home_team_id)?.name ||
+          "Equipo Local",
+        away_team:
+          teams.find((team) => team.id === match.away_team_id)?.name ||
+          "Equipo Visitante",
+      }}
+    />
+  ))}
+</div>
       </div>
     </div>
   );

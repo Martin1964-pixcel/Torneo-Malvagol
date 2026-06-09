@@ -125,6 +125,7 @@ export async function updateMatchData(formData: FormData) {
   revalidatePath("/tabla");
   revalidatePath("/");
 }
+
 export async function deleteMatch(formData: FormData) {
   if (!supabase) return;
 
