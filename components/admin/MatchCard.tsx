@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateMatchData } from "../../app/admin/actions";
+import { supabase } from "../../lib/supabase";
 
 interface MatchCardProps {
   match: {
@@ -45,12 +45,46 @@ export default function MatchCard({
     : "Sin fecha";
 
   const formattedTime = match.match_date
-    ? new Date(match.match_date).toLocaleTimeString("es-MX", {
-        hour: "numeric",
-        minute: "2-digit",
-      })
-    : "";
+  ? new Date(match.match_date).toLocaleTimeString("es-MX", {
+      hour: "numeric",
+      minute: "2-digit",
+    })
+  : "";
 
+const handleUpdate = async (
+  e: React.FormEvent<HTMLFormElement>
+) => {
+  e.preventDefault();
+
+  const formData = new FormData(e.currentTarget);
+
+  const { error } = await supabase
+    .from("matches")
+    .update({
+      home_score: Number(formData.get("home_score") || 0),
+      away_score: Number(formData.get("away_score") || 0),
+      field: String(formData.get("field") || ""),
+      round: Number(formData.get("round") || 1),
+      match_date: String(formData.get("match_date") || ""),
+    })
+    .eq("id", match.id);
+
+  if (error) {
+    console.error(error);
+    alert("Error al actualizar partido");
+    return;
+  }
+
+  console.log("ACTUALIZADO");
+
+  setIsEditing(false);
+
+  onUpdate?.();
+
+  console.log("RECARGANDO");
+};
+
+  
   return (
     <div className="rounded-2xl border bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-emerald-500 hover:shadow-xl">
       <div className="flex flex-wrap items-center gap-2 text-lg font-black">
@@ -80,7 +114,7 @@ export default function MatchCard({
 
       {isEditing && (
         <form
-          action={updateMatchData}
+            onSubmit={handleUpdate}
           className="mt-3 grid gap-3 rounded-xl bg-amber-50 p-3"
         >
           <input type="hidden" name="match_id" value={match.id} />
@@ -130,6 +164,7 @@ export default function MatchCard({
 
           <button
   type="submit"
+  
   className="rounded-xl bg-emerald-600 p-2 font-bold text-white"
 >
   Guardar cambios
