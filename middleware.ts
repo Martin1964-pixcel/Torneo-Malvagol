@@ -22,9 +22,12 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(
-  new URL("/", request.url)
-);
+  return new NextResponse("Autenticación requerida", {
+    status: 401,
+    headers: {
+      "WWW-Authenticate": 'Basic realm="Admin Area"',
+    },
+  });
 }
 
 export const config = {
