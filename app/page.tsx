@@ -350,11 +350,12 @@ const pj = teamMatches.filter(
   </Link>
 
   <Link
-    href="/admin"
-    className="rounded-xl bg-slate-800 px-5 py-2 font-bold text-white"
-  >
-    Admin
-  </Link>
+  href="/admin"
+  prefetch={false}
+  className="rounded-xl bg-slate-800 px-5 py-2 font-bold text-white"
+>
+  Admin
+</Link>
 </div>
         </div>
       </header>
