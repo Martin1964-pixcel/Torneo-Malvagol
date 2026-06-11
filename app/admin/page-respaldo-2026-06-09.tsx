@@ -67,9 +67,7 @@ const [editingMatchId, setEditingMatchId] = useState("");
       .order("name");
 
     setTournaments(tournamentsData || []);
-    console.log("TORNEOS:", tournamentsData);
     setTeams(teamsData || []);
-    console.log("EQUIPOS:", teamsData);
 
     if (tournamentsData && tournamentsData.length > 0) {
       const firstTournamentId = tournamentsData[0].id;
@@ -320,21 +318,20 @@ setEditingMatchId("");
     </div>
   )}
 
- {matches.map((match) => (
-  <MatchCard
-    key={match.id}
-    match={{
-      ...match,
-      home_team:
-        teams.find((team) => team.id === match.home_team_id)?.name ||
-        "Equipo Local",
-      away_team:
-        teams.find((team) => team.id === match.away_team_id)?.name ||
-        "Equipo Visitante",
-    }}
-    onDelete={() => deleteMatchClient(match.id)}
-    onUpdate={() => loadMatches(tournamentId)}
-  />
+  {matches.map((match) => (
+    <MatchCard
+  key={match.id}
+  match={{
+    ...match,
+    home_team:
+      teams.find((team) => team.id === match.home_team_id)?.name ||
+      "Equipo Local",
+    away_team:
+      teams.find((team) => team.id === match.away_team_id)?.name ||
+      "Equipo Visitante",
+  }}
+  onDelete={() => deleteMatchClient(match.id)}
+/>
   ))}
 </div>
       </div>

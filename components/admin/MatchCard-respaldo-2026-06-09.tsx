@@ -130,6 +130,7 @@ export default function MatchCard({
 
           <button
   type="submit"
+  onClick={() => alert("Entró a MatchCard")}
   className="rounded-xl bg-emerald-600 p-2 font-bold text-white"
 >
   Guardar cambios
