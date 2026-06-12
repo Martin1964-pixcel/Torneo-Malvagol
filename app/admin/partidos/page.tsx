@@ -47,6 +47,7 @@ export default function PartidosPage() {
   const [homeScore, setHomeScore] = useState(0);
   const [awayScore, setAwayScore] = useState(0);
   const [field, setField] = useState("");
+  const [round, setRound] = useState(1);
   const [matchDate, setMatchDate] = useState("");
 const [editingMatchId, setEditingMatchId] = useState("");
   useEffect(() => {
@@ -107,7 +108,7 @@ const [editingMatchId, setEditingMatchId] = useState("");
   await loadMatches(tournamentId);
 }
 function changeTournament(selectedTournamentId: string) {
-  setTournamentId(selectedTournamentId);
+    setTournamentId(selectedTournamentId);
   setHomeTeamId("");
   setAwayTeamId("");
 
@@ -116,6 +117,7 @@ function changeTournament(selectedTournamentId: string) {
   );
 
   console.log("TORNEO:", selectedTournamentId);
+  console.log("TODOS LOS EQUIPOS:", teams);
   console.log("FILTRADOS:", filtered);
 
   setFilteredTeams(filtered);
@@ -146,8 +148,9 @@ function changeTournament(selectedTournamentId: string) {
       home_score: homeScore,
       away_score: awayScore,
       field,
-      match_date: matchDate,
-      status: "Finalizado",
+match_date: matchDate,
+round,
+status: "Finalizado",
     },
   ]);
 
@@ -165,6 +168,7 @@ setHomeScore(0);
 setAwayScore(0);
 setField("");
 setMatchDate("");
+setRound(1);
 }
 async function updateMatch(e: React.FormEvent) {
   e.preventDefault();
@@ -293,7 +297,13 @@ setEditingMatchId("");
             onChange={(e) => setField(e.target.value)}
             className="rounded-xl border p-3"
           />
-
+<input
+  type="number"
+  placeholder="Jornada"
+  value={round}
+  onChange={(e) => setRound(Number(e.target.value))}
+  className="rounded-xl border p-3"
+/>
           <input
             type="datetime-local"
             value={matchDate}

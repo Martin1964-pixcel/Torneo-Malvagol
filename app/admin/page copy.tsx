@@ -206,22 +206,40 @@ export default async function AdminPage() {
           </div>
         </form>
 
-        <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
-  <h2 className="mb-4 text-xl font-black">
-    Administración de Partidos
-  </h2>
+        <form action={createMatch} className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-xl font-black">Crear partido</h2>
+          <div className="grid gap-3">
+            <Select name="tournament_id">
+              <option value={firstTournament}>Torneo principal</option>
+              {tournaments.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </Select>
 
-  <p className="mb-4 text-slate-600">
-    Crear, editar, eliminar partidos y capturar resultados.
-  </p>
+            <Select name="home_team_id">
+              {teams.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </Select>
 
-  <a
-    href="/admin/partidos"
-    className="inline-block rounded-xl bg-emerald-600 px-4 py-2 font-bold text-white hover:bg-emerald-700"
-  >
-    Ir a Administración de Partidos
-  </a>
-</div>
+            <Select name="away_team_id">
+              {teams.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </Select>
+
+            <Input name="match_date" placeholder="Fecha" type="datetime-local" />
+            <Input name="field" placeholder="Cancha" />
+            <Input
+  name="round"
+  placeholder="Jornada"
+/>
+
+            <button className="rounded-xl bg-emerald-600 px-4 py-2 font-bold text-white hover:bg-emerald-700">
+              Guardar partido
+            </button>
+          </div>
+        </form>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-10">
