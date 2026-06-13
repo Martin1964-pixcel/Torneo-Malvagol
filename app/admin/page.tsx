@@ -9,6 +9,7 @@ import {
   createTeam,
   createTournament,
 updateMatchData,
+ deleteGoal,
 } from './actions';
 
 type Tournament = { id: string; name: string };
@@ -48,19 +49,21 @@ async function getAdminData() {
     };
   }
 
-  const [tournaments, teams, matches, players] = await Promise.all([
-    supabase.from('tournaments').select('id, name').order('created_at', { ascending: false }),
-    supabase.from('teams').select('id, name').order('name'),
-    supabase.from('matches').select('*').order('match_date'),
-    supabase.from('players').select('id, full_name, team_id').order('full_name'),
-  ]);
+  const [tournaments, teams, matches, players, goals] = await Promise.all([
+  supabase.from('tournaments').select('id, name').order('created_at', { ascending: false }),
+  supabase.from('teams').select('id, name').order('name'),
+  supabase.from('matches').select('*').order('match_date'),
+  supabase.from('players').select('id, full_name, team_id').order('full_name'),
+  supabase.from('goals').select('*'),
+]);
 
-  return {
-    tournaments: (tournaments.data || []) as Tournament[],
-    teams: (teams.data || []) as Team[],
-    matches: (matches.data || []) as Match[],
-    players: (players.data || []) as Player[],
-  };
+ return {
+  tournaments: (tournaments.data || []) as Tournament[],
+  teams: (teams.data || []) as Team[],
+  matches: (matches.data || []) as Match[],
+  players: (players.data || []) as Player[],
+  goals: goals.data || [],
+};
 }
 
 function Input({
@@ -100,9 +103,26 @@ function Select({
 }
 
 export default async function AdminPage() {
-  const { tournaments, teams, matches, players } = await getAdminData();
+  const {
+  tournaments,
+  teams,
+  matches,
+  players,
+  goals,
+} = await getAdminData();
   const firstTournament = tournaments[0]?.id || '';
-
+const teamNameById = Object.fromEntries(
+  teams.map((team) => [
+    team.id,
+    team.name || "Sin nombre",
+  ])
+);
+const playerNameById = Object.fromEntries(
+  players.map((player) => [
+    player.id,
+    player.full_name || "Sin nombre",
+  ])
+);
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <header className="bg-slate-950 text-white">
@@ -232,9 +252,11 @@ export default async function AdminPage() {
             {matches.map((match) => (
               <div key={match.id} className="rounded-2xl bg-slate-50 p-4">
                 <div className="mb-4">
+                  
                   <p className="font-black">
-                    {match.home_team || 'Local'} vs {match.away_team || 'Visitante'}
-                  </p>
+  {teamNameById[match.home_team_id] || "Local"} vs{" "}
+  {teamNameById[match.away_team_id] || "Visitante"}
+</p>
                   <p className="text-sm text-slate-500">
                     {match.field || 'Sin cancha'} ·{' '}
                     {match.match_date
@@ -281,23 +303,52 @@ export default async function AdminPage() {
                           String(player.team_id) === String(match.away_team_id)
                       )
                       .map((player) => (
-                        <option key={player.id} value={player.id}>
-                          {player.full_name || 'Sin nombre'}
-                        </option>
+                       <option key={player.id} value={player.id}>
+  {player.full_name || 'Sin nombre'} (
+  {teams.find(
+    (t) => t.id === player.team_id
+  )?.name || 'Sin equipo'})
+</option>
                       ))}
                   </select>
 
                   <input
-                    name="minute"
-                    type="number"
-                    placeholder="Minuto"
-                    className="rounded-xl border border-slate-200 px-3 py-2"
+name="goals"
+  type="number"
+  defaultValue="1"
+  min="1"
+  placeholder="Goles"
+  className="rounded-xl border border-slate-200 px-3 py-2"
                   />
 
                   <button className="rounded-xl bg-emerald-600 px-4 py-2 font-bold text-white hover:bg-emerald-700">
                     Registrar gol
                   </button>
                 </form>
+                
+<div className="mt-3 space-y-2">
+  {(goals || [])
+    .filter((goal) => goal.match_id === match.id)
+    .map((goal) => (
+      <div
+        key={goal.id}
+        className="flex items-center justify-between rounded-lg bg-slate-100 px-3 py-2"
+      >
+        <span>
+          ⚽ {playerNameById[goal.player_id || ""] || "Sin nombre"}
+        </span>
+
+        <form action={deleteGoal}>
+          <input type="hidden" name="goal_id" value={goal.id} />
+
+          <button className="rounded-lg bg-red-600 px-3 py-1 text-sm font-bold text-white">
+            Eliminar
+          </button>
+        </form>
+      </div>
+    ))}
+</div>
+
               </div>
             ))}
           </div>

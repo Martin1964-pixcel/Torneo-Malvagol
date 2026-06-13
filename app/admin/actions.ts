@@ -96,12 +96,21 @@ export async function createGoal(formData: FormData) {
     .eq('id', playerId)
     .single();
 
-  await supabase.from('goals').insert({
-    match_id: String(formData.get('match_id') || ''),
-    player_id: playerId,
-    team_id: playerData?.team_id || null,
-    minute: Number(formData.get('minute') || 0),
-  });
+  const goals = Number(formData.get('goals') || 1);
+
+  const goalsToInsert = Array.from(
+    { length: goals },
+    () => ({
+      match_id: String(formData.get('match_id') || ''),
+      player_id: playerId,
+      team_id: playerData?.team_id || null,
+      minute: Number(formData.get('minute') || 0),
+    })
+  );
+
+  await supabase
+    .from('goals')
+    .insert(goalsToInsert);
 
   revalidatePath('/admin');
   revalidatePath('/');
@@ -138,6 +147,19 @@ export async function deleteMatch(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/tabla");
   revalidatePath("/");
+}
+
+export async function deleteGoal(formData: FormData) {
+  if (!supabase) return;
+
+  await supabase
+    .from("goals")
+    .delete()
+    .eq("id", String(formData.get("goal_id") || ""));
+
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/goleadores");
 }
 export async function updatePlayerData(formData: FormData) {
   if (!supabase) return;
