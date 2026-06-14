@@ -50,6 +50,7 @@ export default function PartidosPage() {
   const [round, setRound] = useState(1);
   const [matchDate, setMatchDate] = useState("");
 const [editingMatchId, setEditingMatchId] = useState("");
+const [selectedRound, setSelectedRound] = useState(0);
   useEffect(() => {
     loadInitialData();
   }, []);
@@ -209,6 +210,17 @@ setEditingMatchId("");
   setField("");
   setMatchDate("");
 }
+const rounds = Array.from(
+  new Set(
+    matches.map((match: any) => match.round).filter(Boolean)
+  )
+).sort((a, b) => a - b);
+const filteredMatches =
+  selectedRound === 0
+    ? matches
+    : matches.filter(
+        (match: any) => match.round === selectedRound
+      );
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8">
       <div className="mx-auto max-w-5xl">
@@ -322,15 +334,39 @@ setEditingMatchId("");
         </form>
 
         <div className="mt-8 grid max-w-2xl gap-3">
-  <h2 className="text-2xl font-black">Partidos guardados</h2>
+  <h2 className="text-2xl font-black">
+  Partidos guardados
+   </h2>
+  
+<div className="mb-4">
+  <select
+    value={selectedRound}
+    onChange={(e) =>
+      setSelectedRound(Number(e.target.value))
+    }
+    className="rounded-xl border p-3"
+  >
+    <option value={0}>
+      Todas las jornadas
+    </option>
 
+    {rounds.map((round) => (
+      <option
+        key={round}
+        value={round}
+      >
+        Jornada {round}
+      </option>
+    ))}
+  </select>
+</div>
   {matches.length === 0 && (
     <div className="rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
       No hay partidos registrados en esta categoría.
     </div>
   )}
 
- {matches.map((match) => (
+ {filteredMatches.map((match) => (
   <MatchCard
     key={match.id}
     match={{
