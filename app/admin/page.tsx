@@ -31,6 +31,7 @@ type Match = {
   field: string;
   match_date: string;
   status: string;
+  round?: number;
 };
 
 type Player = {
@@ -123,6 +124,15 @@ const playerNameById = Object.fromEntries(
     player.full_name || "Sin nombre",
   ])
 );
+const rounds = Array.from(
+  new Set(
+    matches
+      .map((match) => match.round)
+      .filter(Boolean)
+  )
+).sort((a, b) => Number(a) - Number(b));
+
+const selectedRound = 0;
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <header className="bg-slate-950 text-white">
