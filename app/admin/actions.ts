@@ -161,6 +161,29 @@ export async function deleteGoal(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/goleadores");
 }
+export async function removeGoal(formData: FormData) {
+  if (!supabase) return;
+
+  const playerId = String(formData.get("player_id") || "");
+  const matchId = String(formData.get("match_id") || "");
+
+  const { data: goal } = await supabase
+    .from("goals")
+    .select("id")
+    .eq("player_id", playerId)
+    .eq("match_id", matchId)
+    .limit(1)
+    .single();
+
+  if (!goal) return;
+
+  await supabase
+    .from("goals")
+    .delete()
+    .eq("id", goal.id);
+
+  revalidatePath("/goleadores");
+}
 export async function updatePlayerData(formData: FormData) {
   if (!supabase) return;
 
@@ -176,6 +199,30 @@ export async function updatePlayerData(formData: FormData) {
   revalidatePath("/admin/jugadores");
   revalidatePath("/goleadores");
 }
+export async function addGoal(formData: FormData) {
+  if (!supabase) return;
+
+  const playerId = String(formData.get("player_id") || "");
+  const matchId = String(formData.get("match_id") || "");
+
+  const { data: player } = await supabase
+    .from("players")
+    .select("team_id")
+    .eq("id", playerId)
+    .single();
+
+  await supabase
+    .from("goals")
+    .insert({
+      match_id: matchId,
+      player_id: playerId,
+      team_id: player?.team_id || null,
+      minute: 0,
+    });
+
+  revalidatePath("/goleadores");
+}
+
 export async function deletePlayer(formData: FormData) {
   if (!supabase) return;
 

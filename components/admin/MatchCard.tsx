@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 
@@ -172,24 +172,30 @@ const handleUpdate = async (
         </form>
       )}
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setIsEditing(!isEditing)}
-          className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-bold text-white"
-        >
-          {isEditing ? "Cancelar" : "Editar"}
-        </button>
+     <div className="mt-3 flex flex-wrap gap-2">
+  <button
+    type="button"
+    onClick={() => setIsEditing(!isEditing)}
+    className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-bold text-white"
+  >
+    {isEditing ? "Cancelar" : "Editar"}
+  </button>
 
-        <button
-  type="button"
-  onClick={onDelete}
-  className="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white"
->
-  Eliminar
-</button>
-     
-      </div>
+  <Link
+    href={`/admin/goles/${match.id}`}
+    className="rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white"
+  >
+    Goleadores
+  </Link>
+
+  <button
+    type="button"
+    onClick={onDelete}
+    className="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white"
+  >
+    Eliminar
+  </button>
+</div>
     </div>
   );
 }

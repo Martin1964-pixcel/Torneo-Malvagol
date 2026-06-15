@@ -111,6 +111,7 @@ export default async function AdminPage() {
   players,
   goals,
 } = await getAdminData();
+
   const firstTournament = tournaments[0]?.id || '';
 const teamNameById = Object.fromEntries(
   teams.map((team) => [
@@ -118,21 +119,13 @@ const teamNameById = Object.fromEntries(
     team.name || "Sin nombre",
   ])
 );
+
 const playerNameById = Object.fromEntries(
   players.map((player) => [
     player.id,
     player.full_name || "Sin nombre",
   ])
 );
-const rounds = Array.from(
-  new Set(
-    matches
-      .map((match) => match.round)
-      .filter(Boolean)
-  )
-).sort((a, b) => Number(a) - Number(b));
-
-const selectedRound = 0;
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <header className="bg-slate-950 text-white">
@@ -191,7 +184,7 @@ const selectedRound = 0;
 
       <section className="mx-auto grid max-w-7xl gap-6 px-4 py-7 lg:grid-cols-2">
         <form action={createTournament} className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-xl font-black">Crear torneo</h2>
+                    <h2 className="mb-4 text-xl font-black">Crear torneo</h2>
           <div className="grid gap-3">
             <Input name="name" placeholder="Nombre del torneo" />
             <Input name="category" placeholder="Categoría: Fútbol 7, Infantil..." />
@@ -256,8 +249,10 @@ const selectedRound = 0;
 
       <section className="mx-auto max-w-7xl px-4 pb-10">
         <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-xl font-black">Capturar marcadores</h2>
-
+          <h2 className="mb-4 text-xl font-black">
+            Capturar marcadores
+            </h2>
+            
           <div className="grid gap-3">
             {matches.map((match) => (
               <div key={match.id} className="rounded-2xl bg-slate-50 p-4">

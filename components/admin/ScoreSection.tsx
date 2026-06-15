@@ -1,3 +1,5 @@
+'use client';
+import { useState } from 'react';
 import GoalForm from "./GoalForm";
 
 type Match = {
@@ -8,6 +10,7 @@ type Match = {
   away_team?: string;
   field: string;
   match_date: string;
+  round?: string | number;
 };
 
 type Player = {
@@ -28,13 +31,52 @@ export default function ScoreSection({
   players,
   updateMatchScore,
 }: Props) {
+  const [selectedRound, setSelectedRound] =
+  useState("Todas");
+
+const rounds = [
+  "Todas",
+  ...Array.from(
+    new Set(
+      matches
+        .map((m) => String(m.round))
+        .filter(Boolean)
+    )
+  ),
+];
+
+const filteredMatches =
+  selectedRound === "Todas"
+    ? matches
+    : matches.filter(
+        (m) => String(m.round) === selectedRound
+      );
   return (
     <section className="mx-auto max-w-7xl px-4 pb-10">
       <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-xl font-black">Capturar marcadores</h2>
-
+        <h2 className="mb-4 text-xl font-black">
+          Capturar marcadores
+          </h2>
+          <p className="text-red-500 font-bold">
+  FILTRO DE JORNADAS
+</p>
+<div className="mb-4">
+  <select
+    value={selectedRound}
+    onChange={(e) =>
+      setSelectedRound(e.target.value)
+    }
+    className="rounded-xl border border-slate-300 px-3 py-2"
+  >
+    {rounds.map((round) => (
+      <option key={round} value={round}>
+        {round}
+      </option>
+    ))}
+  </select>
+</div>
         <div className="grid gap-3">
-          {matches.map((match) => (
+          {filteredMatches.map((match) => (
             <div
               key={match.id}
               className="grid items-center gap-3 rounded-2xl bg-slate-50 p-4 md:grid-cols-5"
