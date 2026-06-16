@@ -15,6 +15,7 @@ interface Player {
 type Team = {
   id: string;
   name?: string;
+  nombre?: string;
   tournament_id?: string;
 };
 
@@ -29,6 +30,7 @@ export default function JugadoresPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [activeTournament, setActiveTournament] = useState<string>("");
+  const [activeTeam, setActiveTeam] = useState<string>("");
   const [editingPlayer, setEditingPlayer] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,11 +63,15 @@ export default function JugadoresPage() {
 
     const filteredTeams = teamsData || [];
     setTeams(filteredTeams);
+    if (filteredTeams.length > 0) {
+  setActiveTeam(filteredTeams[0].id);
+}
 
     const teamIds = filteredTeams.map((team) => team.id);
 
     if (teamIds.length === 0) {
       setPlayers([]);
+     
       return;
     }
 
@@ -110,7 +116,11 @@ export default function JugadoresPage() {
 
     await loadTeamsAndPlayers(activeTournament);
   }
-
+const visiblePlayers = activeTeam
+  ? players.filter(
+      (player) => player.team_id === activeTeam
+    )
+  : players;
   return (
     <main className="min-h-screen bg-slate-100 p-4 md:p-8">
       <div className="mx-auto max-w-5xl">
@@ -122,8 +132,8 @@ export default function JugadoresPage() {
         </Link>
 
         <h1 className="mb-6 text-3xl font-black md:text-5xl">
-          Administración de Jugadores
-        </h1>
+  Administración de Jugadores
+</h1>
 
         <div className="mb-6 flex flex-wrap gap-3">
           {tournaments.map((tournament) => (
@@ -143,15 +153,32 @@ export default function JugadoresPage() {
             </button>
           ))}
         </div>
-
+        
+<div className="mb-6 flex flex-wrap gap-2">
+  {teams.map((team) => (
+    <button
+      key={team.id}
+      onClick={() => setActiveTeam(team.id)}
+      className={`rounded-xl px-4 py-2 font-bold ${
+        activeTeam === team.id
+          ? "bg-sky-600 text-white"
+          : "bg-white"
+      }`}
+    >
+     {team.name || (team as any).nombre || "Sin nombre"}
+    </button>
+  ))}
+</div>
         {teams.length === 0 && (
-          <div className="mb-4 rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
-            No hay equipos registrados en esta categoría.
-          </div>
-        )}
-
-        <div className="grid gap-4">
-          {players.map((player) => (
+  <div className="mb-4 rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
+    No hay equipos registrados en esta categoría.
+  </div>
+)}
+<h2 className="mb-4 text-lg font-black text-slate-700">
+  Equipo: {teams.find((t) => t.id === activeTeam)?.name || "Sin equipo"}
+</h2>
+<div className="grid gap-4">
+  {visiblePlayers.map((player) => (
             <div
               key={player.id}
               className="rounded-2xl border bg-white p-4 shadow-sm"

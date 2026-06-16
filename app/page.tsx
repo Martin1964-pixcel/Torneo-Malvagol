@@ -248,6 +248,26 @@ const groupedFinished = finishedMatches.reduce((acc, match) => {
   acc[round].push(match);
   return acc;
 }, {} as Record<number, Match[]>);
+const upcomingRounds = Object.keys(groupedUpcoming)
+  .map(Number)
+  .sort((a, b) => a - b);
+
+const currentUpcomingRound = upcomingRounds[0];
+
+const visibleUpcoming = currentUpcomingRound
+  ? { [currentUpcomingRound]: groupedUpcoming[currentUpcomingRound] }
+  : {};
+
+const finishedRounds = Object.keys(groupedFinished)
+  .map(Number)
+  .sort((a, b) => a - b);
+
+const latestFinishedRound =
+  finishedRounds[finishedRounds.length - 1];
+
+const visibleFinished = latestFinishedRound
+  ? { [latestFinishedRound]: groupedFinished[latestFinishedRound] }
+  : {};
   // Tabla general calculada automáticamente
   const standings = uniqueTeams
   .map((team) => {
@@ -496,7 +516,7 @@ const pj = teamMatches.filter(
 </p>
 
 <div className="space-y-6">
-  {Object.entries(groupedUpcoming)
+  {Object.entries(visibleUpcoming)
     .sort(([a], [b]) => Number(a) - Number(b))
     .map(([round, matches]) => (
       <div key={round}>
@@ -556,7 +576,7 @@ const pj = teamMatches.filter(
 </p>
 
 <div className="space-y-6">
-  {Object.entries(groupedFinished)
+   {Object.entries(visibleFinished)
     .sort(([a], [b]) => Number(b) - Number(a))
     .map(([round, matches]) => (
       <div key={round}>
