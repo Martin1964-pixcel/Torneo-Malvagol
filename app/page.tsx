@@ -52,6 +52,7 @@ type Match = {
   match_date: string;
 
   status: string;
+  round?: number;
 };
 
 const categoryNames = [
@@ -223,9 +224,30 @@ const upcomingMatches = filteredMatches.filter(
 
 const finishedMatches = filteredMatches.filter(
   (match) =>
-    (match.home_score ?? 0) > 0 ||
+        (match.home_score ?? 0) > 0 ||
     (match.away_score ?? 0) > 0
-);
+    );
+const groupedUpcoming = upcomingMatches.reduce((acc, match) => {
+  const round = match.round || 0;
+
+  if (!acc[round]) {
+    acc[round] = [];
+  }
+
+  acc[round].push(match);
+  return acc;
+}, {} as Record<number, Match[]>);
+
+const groupedFinished = finishedMatches.reduce((acc, match) => {
+  const round = match.round || 0;
+
+  if (!acc[round]) {
+    acc[round] = [];
+  }
+
+  acc[round].push(match);
+  return acc;
+}, {} as Record<number, Match[]>);
   // Tabla general calculada automáticamente
   const standings = uniqueTeams
   .map((team) => {
@@ -466,52 +488,66 @@ const pj = teamMatches.filter(
                 ))}
               </tbody>
             </table>
+            </section>
             <section className="rounded-3xl bg-white p-6 shadow-sm lg:col-span-2">
   <h3 className="text-3xl font-black">Próximos partidos</h3>
 <p className="mb-6 text-sm text-slate-500">
   Juegos pendientes por disputarse.
 </p>
 
-<div className="space-y-3">
-  {upcomingMatches.map((match) => (
-    <div key={match.id} className="rounded-2xl border p-4">
-      <div className="flex items-center gap-3">
-  {teamLogoById[match.home_team_id || ""] && (
-    <img
-      src={teamLogoById[match.home_team_id || ""]}
-      alt=""
-      className="h-10 w-10 object-contain"
-    />
-  )}
+<div className="space-y-6">
+  {Object.entries(groupedUpcoming)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([round, matches]) => (
+      <div key={round}>
+        <h4 className="mb-3 text-xl font-black text-emerald-700">
+          Jornada {round}
+        </h4>
 
-  <span className="font-black">
-    {teamNameById[match.home_team_id || ""] || "Local"}
-  </span>
+        <div className="space-y-3">
+          {matches.map((match) => (
+            <div key={match.id} className="rounded-2xl border p-4">
+              <div className="flex items-center gap-3">
+                {teamLogoById[match.home_team_id || ""] && (
+                  <img
+                    src={teamLogoById[match.home_team_id || ""]}
+                    alt=""
+                    className="h-10 w-10 object-contain"
+                  />
+                )}
 
-  <span className="text-emerald-700 font-bold">
-    VS
-  </span>
+                <span className="font-black">
+                  {teamNameById[match.home_team_id || ""] || "Local"}
+                </span>
 
-  {teamLogoById[match.away_team_id || ""] && (
-    <img
-      src={teamLogoById[match.away_team_id || ""]}
-      alt=""
-      className="h-10 w-10 object-contain"
-    />
-  )}
+                <span className="font-bold text-emerald-700">
+                  VS
+                </span>
 
-  <span className="font-black">
-    {teamNameById[match.away_team_id || ""] || "Visitante"}
-  </span>
-</div>
-      <p className="text-sm text-slate-500">
-        {match.field || "Sin cancha"} ·{" "}
-        {match.match_date
-          ? new Date(match.match_date).toLocaleString("es-MX")
-          : "Sin fecha"}
-      </p>
-    </div>
-  ))}
+                {teamLogoById[match.away_team_id || ""] && (
+                  <img
+                    src={teamLogoById[match.away_team_id || ""]}
+                    alt=""
+                    className="h-10 w-10 object-contain"
+                  />
+                )}
+
+                <span className="font-black">
+                  {teamNameById[match.away_team_id || ""] || "Visitante"}
+                </span>
+              </div>
+
+              <p className="text-sm text-slate-500">
+                {match.field || "Sin cancha"} ·{" "}
+                {match.match_date
+                  ? new Date(match.match_date).toLocaleString("es-MX")
+                  : "Sin fecha"}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
 </div>
 
 <h3 className="mt-10 text-3xl font-black">Resultados</h3>
@@ -519,25 +555,36 @@ const pj = teamMatches.filter(
   Marcadores finales registrados.
 </p>
 
-<div className="space-y-3">
-  {finishedMatches.map((match) => (
-    <div key={match.id} className="rounded-2xl border p-4">
-      <p className="font-black">
-        {teamNameById[match.home_team_id || ""] || "Local"}{" "}
-        {match.home_score ?? 0} - {match.away_score ?? 0}{" "}
-        {teamNameById[match.away_team_id || ""] || "Visitante"}
-      </p>
+<div className="space-y-6">
+  {Object.entries(groupedFinished)
+    .sort(([a], [b]) => Number(b) - Number(a))
+    .map(([round, matches]) => (
+      <div key={round}>
+        <h4 className="mb-3 text-xl font-black text-emerald-700">
+          Jornada {round}
+        </h4>
 
-      <p className="text-sm text-slate-500">
-        {match.field || "Sin cancha"} ·{" "}
-        {match.match_date
-          ? new Date(match.match_date).toLocaleString("es-MX")
-          : "Sin fecha"}
-      </p>
-    </div>
-  ))}
+        <div className="space-y-3">
+          {matches.map((match) => (
+            <div key={match.id} className="rounded-2xl border p-4">
+              <p className="font-black">
+                {teamNameById[match.home_team_id || ""] || "Local"}{" "}
+                {match.home_score ?? 0} - {match.away_score ?? 0}{" "}
+                {teamNameById[match.away_team_id || ""] || "Visitante"}
+              </p>
+
+              <p className="text-sm text-slate-500">
+                {match.field || "Sin cancha"} ·{" "}
+                {match.match_date
+                  ? new Date(match.match_date).toLocaleString("es-MX")
+                  : "Sin fecha"}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
 </div>
-</section>
 </section>
 
 <aside className="rounded-3xl bg-white p-6 shadow-sm">
