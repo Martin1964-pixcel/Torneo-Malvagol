@@ -162,10 +162,10 @@ const goleadores = filteredPlayers
 </div>
         <div className="space-y-4">
           {goleadores.map((player, index) => (
-  <Link
+ <Link
   key={player.id}
-  href={"/"}
-  className="block border-4 border-red-500"
+  href={`/jugadores/${player.id}`}
+  className="block"
 >
     <div
       className="flex flex-col gap-4 rounded-3xl bg-white p-5 shadow-sm transition hover:shadow-md md:flex-row md:items-center md:justify-between"
@@ -186,15 +186,12 @@ const goleadores = filteredPlayers
   </div>
 
   <div>
-    <Link
-  href={"/"}
-  className="text-2xl font-black text-blue-600"
->
+   <p className="text-2xl font-black">
       #{index + 1}{" "}
       {player.full_name ||
         player.name ||
         player.nombre}
-   </Link>
+   </p>
 
     <p className="text-slate-500">
       {teamNameById[player.team_id || ""] ||

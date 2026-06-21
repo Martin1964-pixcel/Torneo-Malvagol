@@ -139,11 +139,13 @@ const rankingEquipo =
           <div className="mb-8 flex items-center gap-6">
 
             {team?.logo_url && (
-              <img
-                src={team.logo_url}
-                alt={team.name}
-                className="h-24 w-24 object-contain"
-              />
+             <Link href={`/equipos/${team?.id}`}>
+  <img
+    src={team.logo_url}
+    alt={team.name}
+    className="h-24 w-24 cursor-pointer object-contain transition hover:scale-105"
+  />
+</Link>
             )}
 
             <div>
@@ -151,9 +153,12 @@ const rankingEquipo =
                 {player?.full_name}
               </h1>
 
-              <p className="text-lg text-slate-600">
-                {team?.name}
-              </p>
+              <Link
+  href={`/equipos/${team?.id}`}
+  className="text-lg text-slate-600 hover:text-emerald-600 hover:underline"
+>
+  {team?.name}
+</Link>
             </div>
 
           </div>
