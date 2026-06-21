@@ -85,7 +85,13 @@ function StatCard({
 }
 
 export default function HomePage() {
+  
   const [activeCategory, setActiveCategory] = useState(categoryNames[0]);
+  const [selectedUpcomingRound, setSelectedUpcomingRound] =
+    useState<number | null>(null);
+
+  const [selectedFinishedRound, setSelectedFinishedRound] =
+    useState<number | null>(null);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -254,8 +260,14 @@ const upcomingRounds = Object.keys(groupedUpcoming)
 
 const currentUpcomingRound = upcomingRounds[0];
 
-const visibleUpcoming = currentUpcomingRound
-  ? { [currentUpcomingRound]: groupedUpcoming[currentUpcomingRound] }
+const activeUpcomingRound =
+  selectedUpcomingRound || currentUpcomingRound;
+
+const visibleUpcoming = activeUpcomingRound
+  ? {
+      [activeUpcomingRound]:
+        groupedUpcoming[activeUpcomingRound],
+    }
   : {};
 
 const finishedRounds = Object.keys(groupedFinished)
@@ -265,8 +277,14 @@ const finishedRounds = Object.keys(groupedFinished)
 const latestFinishedRound =
   finishedRounds[finishedRounds.length - 1];
 
-const visibleFinished = latestFinishedRound
-  ? { [latestFinishedRound]: groupedFinished[latestFinishedRound] }
+const activeFinishedRound =
+  selectedFinishedRound || latestFinishedRound;
+
+const visibleFinished = activeFinishedRound
+  ? {
+      [activeFinishedRound]:
+        groupedFinished[activeFinishedRound],
+    }
   : {};
   // Tabla general calculada automáticamente
   const standings = uniqueTeams
@@ -514,7 +532,23 @@ const pj = teamMatches.filter(
 <p className="mb-6 text-sm text-slate-500">
   Juegos pendientes por disputarse.
 </p>
-
+<div className="mb-6 flex flex-wrap gap-2">
+  {upcomingRounds.map((round) => (
+    <button
+      key={round}
+      onClick={() =>
+        setSelectedUpcomingRound(round)
+      }
+      className={`rounded-xl border px-3 py-1 text-sm font-bold ${
+        activeUpcomingRound === round
+          ? "bg-emerald-600 text-white"
+          : "bg-white"
+      }`}
+    >
+      Jornada {round}
+    </button>
+  ))}
+</div>
 <div className="space-y-6">
   {Object.entries(visibleUpcoming)
     .sort(([a], [b]) => Number(a) - Number(b))
