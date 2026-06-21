@@ -229,19 +229,22 @@ export default function EquipoPage() {
               </h2>
 
               {players.map((player) => (
-                <div
-                  key={player.id}
-                  className="border-b py-2"
-                >
-                  <p className="font-bold">
-                    {player.full_name}
-                  </p>
+  <div
+    key={player.id}
+    className="border-b py-2"
+  >
+    <Link
+      href={`/jugadores/${player.id}`}
+      className="font-bold hover:text-emerald-600"
+    >
+      {player.full_name}
+    </Link>
 
-                  <p className="text-sm text-slate-500">
-                    {player.position}
-                  </p>
-                </div>
-              ))}
+    <p className="text-sm text-slate-500">
+      {player.position || "Sin posición"}
+    </p>
+  </div>
+))}
             </section>
 
             <section className="rounded-2xl border p-5">

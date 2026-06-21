@@ -51,6 +51,7 @@ export default function PartidosPage() {
   const [matchDate, setMatchDate] = useState("");
 const [editingMatchId, setEditingMatchId] = useState("");
 const [selectedRound, setSelectedRound] = useState(0);
+const [selectedTeam, setSelectedTeam] = useState("");
   useEffect(() => {
     loadInitialData();
   }, []);
@@ -215,12 +216,18 @@ const rounds = Array.from(
     matches.map((match: any) => match.round).filter(Boolean)
   )
 ).sort((a, b) => a - b);
-const filteredMatches =
-  selectedRound === 0
-    ? matches
-    : matches.filter(
-        (match: any) => match.round === selectedRound
-      );
+const filteredMatches = matches.filter((match: any) => {
+  const roundMatch =
+    selectedRound === 0 ||
+    match.round === selectedRound;
+
+  const teamMatch =
+    !selectedTeam ||
+    match.home_team_id === selectedTeam ||
+    match.away_team_id === selectedTeam;
+
+  return roundMatch && teamMatch;
+});
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8">
       <div className="mx-auto max-w-5xl">
@@ -247,6 +254,7 @@ const filteredMatches =
             onChange={(e) => changeTournament(e.target.value)}
             className="rounded-xl border p-3"
           >
+            
             <option value="">Selecciona torneo</option>
 
             {tournaments.map((tournament) => (
@@ -345,7 +353,8 @@ const filteredMatches =
       setSelectedRound(Number(e.target.value))
     }
     className="rounded-xl border p-3"
-  >
+    >
+      
     <option value={0}>
       Todas las jornadas
     </option>
@@ -356,6 +365,28 @@ const filteredMatches =
         value={round}
       >
         Jornada {round}
+      </option>
+    ))}
+  </select>
+</div>
+<div className="mb-4">
+  <select
+    value={selectedTeam}
+    onChange={(e) =>
+      setSelectedTeam(e.target.value)
+    }
+    className="rounded-xl border p-3"
+  >
+    <option value="">
+      Todos los equipos
+    </option>
+
+    {filteredTeams.map((team) => (
+      <option
+        key={team.id}
+        value={team.id}
+      >
+        {team.name}
       </option>
     ))}
   </select>

@@ -169,14 +169,20 @@ const visiblePlayers = activeTeam
     </button>
   ))}
 </div>
-        {teams.length === 0 && (
+      {teams.length === 0 && (
   <div className="mb-4 rounded-2xl bg-white p-4 text-sm font-bold text-slate-600">
     No hay equipos registrados en esta categoría.
   </div>
 )}
-<h2 className="mb-4 text-lg font-black text-slate-700">
+
+<h2 className="mb-1 text-lg font-black text-slate-700">
   Equipo: {teams.find((t) => t.id === activeTeam)?.name || "Sin equipo"}
 </h2>
+
+<p className="mb-4 text-sm font-bold text-slate-500">
+  Jugadores registrados: {visiblePlayers.length}
+</p>
+
 <div className="grid gap-4">
   {visiblePlayers.map((player) => (
             <div
