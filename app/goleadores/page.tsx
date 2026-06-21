@@ -162,10 +162,14 @@ const goleadores = filteredPlayers
 </div>
         <div className="space-y-4">
           {goleadores.map((player, index) => (
-            <div
-              key={player.id}
-              className="flex flex-col gap-4 rounded-3xl bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between"
-            >
+  <Link
+  key={player.id}
+  href={"/"}
+  className="block border-4 border-red-500"
+>
+    <div
+      className="flex flex-col gap-4 rounded-3xl bg-white p-5 shadow-sm transition hover:shadow-md md:flex-row md:items-center md:justify-between"
+    >
              <div className="flex items-center gap-4">
   <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border bg-slate-100 p-2">
     {teamLogoById[player.team_id || ""] ? (
@@ -182,12 +186,15 @@ const goleadores = filteredPlayers
   </div>
 
   <div>
-    <p className="text-2xl font-black">
+    <Link
+  href={"/"}
+  className="text-2xl font-black text-blue-600"
+>
       #{index + 1}{" "}
       {player.full_name ||
         player.name ||
         player.nombre}
-    </p>
+   </Link>
 
     <p className="text-slate-500">
       {teamNameById[player.team_id || ""] ||
@@ -212,6 +219,7 @@ const goleadores = filteredPlayers
                 </p>
               </div>
             </div>
+             </Link>
           ))}
         </div>
       </div>

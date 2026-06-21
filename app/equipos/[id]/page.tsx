@@ -270,12 +270,15 @@ export default function EquipoPage() {
                   key={player.id}
                   className="flex justify-between border-b py-2"
                 >
-                  <span>
+                  <Link
+  href={`/jugadores/${player.id}`}
+  className="hover:text-emerald-600 font-medium"
+>
   {index === 0 && "🥇 "}
   {index === 1 && "🥈 "}
   {index === 2 && "🥉 "}
   {player.full_name}
-</span>
+</Link>
 
                   <span className="font-black text-emerald-700">
                     {player.goles}
