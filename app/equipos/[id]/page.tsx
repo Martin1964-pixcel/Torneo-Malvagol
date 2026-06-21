@@ -161,6 +161,7 @@ export default function EquipoPage() {
       ).length,
     }))
     .sort((a, b) => b.goles - a.goles);
+    const liderEquipo = goleadores[0];
 
   const ultimosResultados = teamMatches
     .filter(
@@ -220,7 +221,19 @@ export default function EquipoPage() {
             <Stat title="PTS" value={pts} />
 
           </div>
+<div className="mb-6 rounded-2xl border bg-slate-50 p-5">
+  <p className="text-sm font-bold text-slate-500">
+    🏆 Líder del equipo
+  </p>
 
+  <p className="mt-1 text-2xl font-black">
+    {liderEquipo?.full_name}
+  </p>
+
+  <p className="text-emerald-700 font-bold">
+    {liderEquipo?.goles} goles
+  </p>
+</div>
           <div className="grid gap-6 md:grid-cols-2">
 
             <section className="rounded-2xl border p-5">
@@ -252,12 +265,17 @@ export default function EquipoPage() {
                 Goleadores
               </h2>
 
-              {goleadores.map((player) => (
+              {goleadores.map((player, index) => (
                 <div
                   key={player.id}
                   className="flex justify-between border-b py-2"
                 >
-                  <span>{player.full_name}</span>
+                  <span>
+  {index === 0 && "🥇 "}
+  {index === 1 && "🥈 "}
+  {index === 2 && "🥉 "}
+  {player.full_name}
+</span>
 
                   <span className="font-black text-emerald-700">
                     {player.goles}
